@@ -1,0 +1,52 @@
+# exampleSite — a self-contained demo of the linbit-docs theme.
+#
+# Run it standalone (the theme lives two levels up, via --themesDir):
+#   make linbit-example-serve            # from the hugo/ dir → http://localhost:1315
+# This site travels WITH the theme when the theme is extracted to its own repo,
+# and doubles as the showcase of the LINBIT design-system being consumed.
+
+baseURL = "/"
+title = "LINBIT Docs Theme — Example"
+theme = "linbit"
+languageCode = "en"
+
+# No taxonomies (the theme has no tags/categories).
+[taxonomies]
+
+[markup.goldmark.extensions]
+  definitionList = true
+  table = true
+[markup.goldmark.renderer]
+  unsafe = true   # demo admonitions are raw <div class="linbit-callout"> blocks
+[markup.highlight]
+  noClasses = false
+  style = "github"
+
+# Single-page ("flat") output per section + the self-contained search index.
+[outputFormats.singlepage]
+  name           = "singlepage"
+  baseName       = "singlepage"
+  mediaType      = "text/html"
+  isHTML         = true
+  notAlternative = true
+[outputFormats.searchindex]
+  name           = "searchindex"
+  baseName       = "search-index"
+  mediaType      = "application/json"
+  notAlternative = true
+
+[outputs]
+  home    = ["HTML", "searchindex"]
+  section = ["HTML", "singlepage"]
+  page    = ["HTML"]
+
+# Tailwind v4 (in main.css) detects classes from hugo_stats.json; emit + cachebust it.
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = 'assets/.*\.(css|js)'
+    target = 'css'

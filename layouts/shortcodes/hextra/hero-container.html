@@ -1,0 +1,7 @@
+{{- /* Token-native reimplementation (LINBIT's own, not copied from Hextra) of a
+       hero/card shortcode that the shared content/_index.md calls by name
+       (`hextra/hero-*`, `cards`, `card`). The `hextra/` directory name only matches
+       what the content invokes; Hugo resolves shortcodes by that exact name. The
+       linbit home layout (index.html) doesn't render _index.md's body, so these
+       stubs are defensive — they keep the shared home content valid for this build. */ -}}
+<section class="py-8">{{ .Inner }}</section>

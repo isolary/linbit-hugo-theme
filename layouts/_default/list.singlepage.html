@@ -1,0 +1,78 @@
+{{- /*
+  Single-page ("flat") view for a guide: every chapter on one scrolling page
+  with a sticky contents pane and scroll-spy. Rendered for the `singlepage`
+  output format (see hugo.linbit.toml) inside baseof.singlepage.html.
+
+  NOTE ON COEXISTENCE: an identical, theme-agnostic copy lives at the project
+  level (hugo/layouts/_default/list.singlepage.html), which the Hextra build also
+  uses. While both themes share one repo, Hugo's project-layouts-win precedence
+  means the project copy is what actually renders — this theme copy is dormant.
+  It exists so the theme is self-contained when extracted to its own module/repo
+  (at which point the project copy is gone and this one activates). Keep the two
+  in sync until extraction. Styling: `.linbit-singlepage-*` in assets/css/main.css.
+*/ -}}
+{{ define "main" }}
+<div class="linbit-singlepage-outer">
+
+  <nav class="linbit-singlepage-nav" aria-label="Chapter navigation">
+    <p class="linbit-singlepage-nav-heading">Contents</p>
+    <ol>
+      {{- range .Pages.ByWeight }}
+      <li><a href="#{{ .File.ContentBaseName }}" class="linbit-singlepage-nav-link">{{ .Title }}</a></li>
+      {{- end }}
+    </ol>
+  </nav>
+
+  <div class="linbit-singlepage-content">
+    <h1>{{ .Title }}</h1>
+
+    {{- range .Pages.ByWeight }}
+    <section id="{{ .File.ContentBaseName }}" class="linbit-singlepage-chapter">
+      <h1>{{ .Title }}</h1>
+      <div class="content">{{ .Content }}</div>
+    </section>
+    {{- end }}
+  </div>
+
+</div>
+<script>
+if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+window.scrollTo(0, 0);
+(function () {
+  const links = document.querySelectorAll('.linbit-singlepage-nav-link');
+  const sections = document.querySelectorAll('.linbit-singlepage-chapter');
+  if (!links.length || !sections.length) return;
+
+  const linkMap = {};
+  links.forEach(l => { linkMap[l.getAttribute('href').slice(1)] = l; });
+
+  let active = null;
+
+  function activate(id) {
+    if (id === active) return;
+    if (active && linkMap[active]) linkMap[active].classList.remove('linbit-singlepage-nav-active');
+    active = id;
+    if (id && linkMap[id]) {
+      linkMap[id].classList.add('linbit-singlepage-nav-active');
+      linkMap[id].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function update() {
+    const offset = 80; // px below viewport top — just below navbar
+    let current = sections[0].id;
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top <= offset) {
+        current = s.id;
+      } else {
+        break;
+      }
+    }
+    activate(current);
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+</script>
+{{ end }}

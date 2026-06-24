@@ -1,0 +1,11 @@
+{
+  "name": "linbit-hugo-theme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tailwind v4 toolchain for the LINBIT Hugo theme.",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "tailwindcss": "^4.0.0"
+  }
+}

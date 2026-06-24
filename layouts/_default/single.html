@@ -1,0 +1,28 @@
+{{ define "main" }}
+<article>
+  <nav class="mb-6 text-xs text-fg-muted">
+    <a href="{{ "/" | relURL }}" class="hover:text-fg">Guides</a>
+    {{ with .CurrentSection }} <span class="px-1">/</span> <a href="{{ .RelPermalink }}" class="hover:text-fg">{{ .Title }}</a>{{ end }}
+  </nav>
+  <header class="mb-8 border-b border-line pb-6">
+    <h1 class="font-heading text-3xl font-semibold text-fg">{{ .Title }}</h1>
+  </header>
+
+  {{- /* Inline collapsible ToC for smaller screens only; xl+ uses the right
+         sticky sidebar (partials/toc.html). */ -}}
+  {{ with .TableOfContents }}
+  {{ if gt (len $.Fragments.Identifiers) 1 }}
+  <details class="mb-8 rounded-lg border border-line bg-subtle/50 px-4 py-3 text-sm xl:hidden" open>
+    <summary class="cursor-pointer font-medium text-fg">On this page</summary>
+    <div class="linbit-toc mt-2">{{ . }}</div>
+  </details>
+  {{ end }}
+  {{ end }}
+
+  <div class="prose">
+    {{ .Content }}
+  </div>
+
+  {{ partial "pager.html" . }}
+</article>
+{{ end }}

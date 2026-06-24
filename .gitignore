@@ -1,0 +1,11 @@
+# Tailwind v4 toolchain (installed via `npm install`)
+node_modules/
+
+# exampleSite build artifacts
+exampleSite/public/
+exampleSite/resources/
+exampleSite/hugo_stats.json
+exampleSite/.hugo_build.lock
+
+# macOS
+.DS_Store

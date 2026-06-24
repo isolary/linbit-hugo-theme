@@ -1,0 +1,16 @@
+{{ define "main" }}
+<header class="mb-8 border-b border-line pb-6">
+  <h1 class="font-heading text-3xl font-semibold text-fg">{{ .Title }}</h1>
+  {{ with .Content }}<div class="prose mt-4">{{ . }}</div>{{ end }}
+</header>
+<ul class="grid gap-3 sm:grid-cols-2">
+  {{ range .Pages.ByWeight }}
+  <li>
+    <a href="{{ .RelPermalink }}" class="group block h-full rounded-lg border border-line bg-surface p-5 hover:border-action">
+      <div class="font-heading font-semibold text-fg group-hover:text-action">{{ .Title }}</div>
+      {{ with .Summary }}<p class="mt-2 line-clamp-3 text-sm text-fg-secondary">{{ . | plainify | truncate 140 }}</p>{{ end }}
+    </a>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}

@@ -1,0 +1,87 @@
+{{ define "main" }}
+{{- $flex := resources.Get "lib/flexsearch/flexsearch.bundle.min.js" -}}
+{{- $idx := site.Home.OutputFormats.Get "searchindex" -}}
+<div class="py-10">
+  <h1 id="search-heading" class="font-heading text-3xl font-semibold text-fg">Search</h1>
+  <form id="search-form" class="mt-6" role="search">
+    <input id="search-box" type="search" name="q" autocomplete="off" spellcheck="false"
+      placeholder="Search the documentation…"
+      class="w-full rounded-lg border border-line bg-surface px-4 py-2.5 text-fg placeholder:text-fg-muted focus:border-action focus:outline-none">
+  </form>
+  <p id="search-count" class="mt-4 text-sm text-fg-muted"></p>
+  <div id="search-results" class="mt-4"></div>
+</div>
+
+<script src="{{ $flex.RelPermalink }}"></script>
+<script>
+(function () {
+  const indexURL = "{{ $idx.RelPermalink }}";
+  const form = document.getElementById('search-form');
+  const box = document.getElementById('search-box');
+  const countEl = document.getElementById('search-count');
+  const resultsEl = document.getElementById('search-results');
+
+  const initialQuery = new URLSearchParams(location.search).get('q') || '';
+  box.value = initialQuery;
+
+  let index = null, ready = false;
+
+  function escapeHTML(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function highlight(text, q) {
+    const esc = escapeHTML(text);
+    if (!q) return esc;
+    const re = new RegExp(q.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&'), 'gi');
+    return esc.replace(re, m => '<mark class="linbit-search-match">' + m + '</mark>');
+  }
+  function snippet(content, q) {
+    if (!content) return '';
+    const lc = content.toLowerCase(), i = q ? lc.indexOf(q.toLowerCase()) : -1;
+    if (i < 0) return content.slice(0, 180) + (content.length > 180 ? '…' : '');
+    const start = Math.max(0, i - 70), end = Math.min(content.length, i + q.length + 110);
+    return (start > 0 ? '…' : '') + content.slice(start, end) + (end < content.length ? '…' : '');
+  }
+
+  async function build() {
+    const data = await (await fetch(indexURL)).json();
+    index = new FlexSearch.Document({
+      tokenize: 'forward', cache: 100,
+      document: { id: 'url', store: ['title', 'crumb', 'content'], index: ['title', 'content'] }
+    });
+    data.forEach(d => index.add(d));
+    ready = true;
+  }
+
+  function run(q) {
+    history.replaceState(null, '', q ? ('?q=' + encodeURIComponent(q)) : location.pathname);
+    if (!q) { countEl.textContent = ''; resultsEl.innerHTML = '<p class="text-fg-muted">Enter a search term above.</p>'; return; }
+    if (!ready) { resultsEl.innerHTML = '<p class="text-fg-muted">Loading…</p>'; return; }
+
+    const fields = index.search(q, { enrich: true, limit: 50 });
+    const seen = new Set(), docs = [];
+    for (const f of fields) for (const r of f.result) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id); docs.push(r.doc);
+    }
+
+    countEl.textContent = docs.length + ' result' + (docs.length === 1 ? '' : 's');
+    if (!docs.length) { resultsEl.innerHTML = '<p class="text-fg-muted">No results found.</p>'; return; }
+
+    resultsEl.innerHTML = '<ul class="space-y-3">' + docs.map(d =>
+      '<li><a href="' + d.url + '" class="block rounded-lg border border-line bg-surface p-4 hover:border-action">' +
+        (d.crumb ? '<div class="linbit-search-guide">' + escapeHTML(d.crumb) + '</div>' : '') +
+        '<div class="font-heading font-medium text-fg">' + highlight(d.title || '', q) + '</div>' +
+        '<div class="mt-1 text-sm text-fg-secondary">' + highlight(snippet(d.content || '', q), q) + '</div>' +
+      '</a></li>'
+    ).join('') + '</ul>';
+  }
+
+  form.addEventListener('submit', e => { e.preventDefault(); run(box.value.trim()); });
+  let t; box.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => run(box.value.trim()), 150); });
+
+  resultsEl.innerHTML = '<p class="text-fg-muted">Loading…</p>';
+  build().then(() => run(box.value.trim()));
+})();
+</script>
+{{ end }}

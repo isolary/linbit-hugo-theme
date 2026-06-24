@@ -1,0 +1,30 @@
+{{ define "main" }}
+<section class="py-6">
+  <h1 class="font-heading text-4xl font-semibold text-fg">LINBIT Documentation</h1>
+  <p class="mt-3 max-w-2xl text-fg-secondary">
+    Token-native theme — every color, font, and surface on this page resolves from the
+    <code class="font-mono text-fg">@linbit/design-system</code>, the shared source of truth
+    consumed across LINBIT properties.
+  </p>
+
+  <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {{ range where site.Sections "Title" "!=" "" }}
+    <li>
+      <a href="{{ .RelPermalink }}" class="group flex h-full flex-col rounded-xl border border-line bg-surface p-6 hover:border-action">
+        <span class="font-heading text-lg font-semibold text-fg group-hover:text-action">{{ .Title }}</span>
+        <span class="mt-2 text-sm text-fg-muted">{{ len .Pages }} chapters</span>
+      </a>
+    </li>
+    {{ end }}
+  </ul>
+
+  <div class="mt-12 flex flex-wrap gap-3">
+    <button class="rounded-md bg-action px-4 py-2 text-sm font-semibold text-on-action hover:bg-action-hover">Primary action</button>
+    <button class="rounded-md border border-line-strong px-4 py-2 text-sm font-medium text-fg hover:bg-subtle">Secondary</button>
+    <span class="rounded-md bg-success-subtle px-3 py-2 text-sm font-medium text-success-fg">success</span>
+    <span class="rounded-md bg-warning-subtle px-3 py-2 text-sm font-medium text-warning-fg">warning</span>
+    <span class="rounded-md bg-error-subtle px-3 py-2 text-sm font-medium text-error-fg">error</span>
+    <span class="rounded-md bg-info-subtle px-3 py-2 text-sm font-medium text-info-fg">info</span>
+  </div>
+</section>
+{{ end }}

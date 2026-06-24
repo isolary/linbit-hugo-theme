@@ -1,0 +1,36 @@
+{{- /*
+  Nested chapter navigation for the current guide.
+
+  Content is a flat section (all chapter pages are direct children); the tree
+  shape lives in each page's `parent` front-matter field (emitted by convert.py
+  from the source toctree hierarchy). We reconstruct the tree here:
+
+    childrenOf[k_<parent stem>] = ordered slice of child pages   (parent "" = top level)
+    parentOf[p_<stem>]          = that page's parent stem
+    openSet[o_<stem>]           = true for the active page and all its ancestors
+
+  Flat guides (every page parent="") collapse to a single level automatically.
+*/ -}}
+{{- $cur := . -}}
+{{- $section := .CurrentSection -}}
+{{- if and $section $section.Title (not .IsHome) -}}
+  {{- $pages := $section.RegularPages.ByWeight -}}
+  {{- $childrenOf := newScratch -}}
+  {{- $parentOf := newScratch -}}
+  {{- $openSet := newScratch -}}
+  {{- range $pages -}}
+    {{- $stem := "" -}}{{- with .File -}}{{- $stem = .ContentBaseName -}}{{- end -}}
+    {{- $par := .Params.parent | default "" -}}
+    {{- $childrenOf.Add (printf "k_%s" $par) (slice .) -}}
+    {{- $parentOf.Set (printf "p_%s" $stem) $par -}}
+  {{- end -}}
+  {{- $curStem := "" -}}{{- with $cur.File -}}{{- $curStem = .ContentBaseName -}}{{- end -}}
+  {{- partial "sidebar-mark-open.html" (dict "stem" $curStem "parentOf" $parentOf "openSet" $openSet) -}}
+
+  <aside class="hidden w-64 shrink-0 border-r border-line py-10 pr-6 lg:block">
+    <nav class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
+      <a href="{{ $section.RelPermalink }}" class="mb-3 block font-heading text-xs font-semibold uppercase tracking-wide text-fg-muted hover:text-fg">{{ $section.Title }}</a>
+      {{- partial "sidebar-tree.html" (dict "parent" "" "level" 0 "current" $cur "childrenOf" $childrenOf "openSet" $openSet) -}}
+    </nav>
+  </aside>
+{{- end -}}

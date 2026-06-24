@@ -1,0 +1,16 @@
+{{- /* Self-contained search index for the bespoke theme.
+       One record per content page in the current language:
+         { title, url, crumb (guide name), content (plain text) }
+       Consumed by layouts/_default/linbit-search.html via FlexSearch. */ -}}
+{{- $list := slice -}}
+{{- range where site.RegularPages "Params.excludeSearch" "!=" true -}}
+  {{- $crumb := "" -}}
+  {{- with .CurrentSection -}}{{- if .Title -}}{{- $crumb = .Title -}}{{- end -}}{{- end -}}
+  {{- $list = $list | append (dict
+      "title"   .Title
+      "url"     .RelPermalink
+      "crumb"   $crumb
+      "content" (.Plain | htmlUnescape)
+    ) -}}
+{{- end -}}
+{{- $list | jsonify -}}

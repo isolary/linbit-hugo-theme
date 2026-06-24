@@ -1,0 +1,56 @@
+/* ==========================================================================
+   Vendored from @linbit/core-css (design-system monorepo, v1.2.0) — the
+   framework-agnostic component CSS layer. These classes consume design-tokens
+   var()s (provided by _tokens.css, which must load first).
+
+   This file is the flattened concatenation of @linbit/core-css's src/*.css
+   (currently just button.css). To refresh: in ../../design-system, copy each
+   packages/core-css/src/*.css here in the order index.css imports them.
+   Do not edit the rules here — change them upstream in core-css.
+   ========================================================================== */
+
+/* Button — implements @linbit/specs/components/button.md.
+   Built from @linbit/tokens; requires variables.css to be loaded for the var()s. */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  font-family: var(--font-family-roboto);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  line-height: 1.43;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-2) var(--spacing-4);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.btn:focus-visible { outline: 2px solid var(--input-border-focus); outline-offset: 2px; }
+.btn:disabled,
+.btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+/* variants */
+.btn--primary { background: var(--interactive-primary); color: var(--interactive-primary-text); }
+.btn--primary:hover { background: var(--interactive-primary-hover); }
+
+.btn--secondary {
+  background: var(--interactive-secondary);
+  color: var(--interactive-secondary-text);
+  border-color: var(--interactive-secondary-border);
+}
+.btn--secondary:hover { border-color: var(--interactive-secondary-border-hover); }
+
+.btn--destructive {
+  background: var(--interactive-destructive-bg-default);
+  color: var(--status-error);
+}
+.btn--destructive:hover { background: var(--interactive-destructive-bg-hover); }
+
+/* sizes */
+.btn--sm { font-size: var(--font-size-xs);   padding: var(--spacing-1) var(--spacing-3); }
+.btn--lg { font-size: var(--font-size-base); padding: var(--spacing-3) var(--spacing-5); border-radius: var(--radius-md); }
+
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }

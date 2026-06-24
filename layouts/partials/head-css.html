@@ -1,0 +1,16 @@
+{{- /*
+  CSS pipeline (concat order matters — tokens first):
+    1. _tokens.css   — vendored @linbit/tokens variables.css (the var() values)
+    2. _core-css.css — vendored @linbit/core-css component classes (.btn, …) using those vars
+    3. Tailwind output (main.css) — names ergonomic utilities + prose + docs components
+  Custom properties resolve at use time, so only the tokens-before-consumers order matters.
+*/ -}}
+{{- $opts := dict "minify" hugo.IsProduction -}}
+{{- $tokens := resources.Get "css/_tokens.css" -}}
+{{- $core := resources.Get "css/_core-css.css" -}}
+{{- $tw := resources.Get "css/main.css" | css.TailwindCSS $opts -}}
+{{- $bundle := slice $tokens $core $tw | resources.Concat "css/bundle.css" -}}
+{{- if hugo.IsProduction -}}
+  {{- $bundle = $bundle | minify | fingerprint -}}
+{{- end -}}
+<link rel="stylesheet" href="{{ $bundle.RelPermalink }}"{{ if hugo.IsProduction }} integrity="{{ $bundle.Data.Integrity }}"{{ end }}>

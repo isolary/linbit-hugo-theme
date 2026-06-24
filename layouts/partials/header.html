@@ -1,0 +1,89 @@
+{{- /* Called as: partial "header.html" (dict "ctx" . "singlepage" <bool>).
+       `singlepage` is true only when rendering the single-page output, so the
+       view toggle can point the right way (Hugo's .OutputFormat is not reliably
+       accessible in templates here, hence the explicit flag from baseof). */ -}}
+{{- $page := .ctx -}}
+{{- $singlepage := .singlepage -}}
+<header class="sticky top-0 z-50 border-b border-line bg-surface/90 backdrop-blur">
+  <div class="mx-auto flex h-16 w-full max-w-screen-xl items-center gap-4 px-4 sm:px-6">
+    <a href="{{ "/" | relLangURL }}" class="flex items-center gap-3">
+      {{- /* Inline the SVG so CSS can recolor only the wordmark in dark mode
+             (the orange hexagon stays orange; the #111111 letterforms → white).
+             See `.site-logo` rules in assets/css/main.css. */ -}}
+      <span class="site-logo block" role="img" aria-label="LINBIT">{{ os.ReadFile "static/images/LINBIT-logo.svg" | safeHTML }}</span>
+      <span class="font-heading text-base font-semibold text-fg">Documentation</span>
+    </a>
+
+    <nav class="ml-auto flex items-center gap-1 text-sm">
+      <a href="{{ "/" | relLangURL }}" class="rounded-md px-3 py-1.5 font-medium text-fg-secondary hover:bg-subtle hover:text-fg">Guides</a>
+
+      {{- /* Search — submits to the theme's own /search/ results page. */ -}}
+      <form action="{{ "/search/" | relLangURL }}" method="get" role="search" class="hidden md:block">
+        <input type="search" name="q" placeholder="Search…" aria-label="Search" autocomplete="off" spellcheck="false"
+          class="w-32 rounded-md border border-line bg-subtle px-3 py-1.5 text-sm text-fg placeholder:text-fg-muted focus:w-48 focus:border-action focus:bg-surface focus:outline-none lg:w-40 lg:focus:w-56 transition-[width]">
+      </form>
+
+      {{- /* Per-guide affordances: PDF/EPUB downloads + single/multi-page toggle.
+             Shown only inside a guide. The guide slug comes from the current
+             section's permalink (works on both page and section kinds, and is
+             language-agnostic — path.Base strips any /<lang>/ prefix). */ -}}
+      {{- with $page.CurrentSection -}}
+      {{- if ne .RelPermalink "/" -}}
+        {{- $section := path.Base .RelPermalink -}}
+        {{- $lang := $page.Language.Lang -}}
+        {{- $langpfx := cond (eq $lang "en") "" (printf "/%s" $lang) -}}
+        {{- $linkClass := "hidden rounded-md px-3 py-1.5 font-medium text-fg-secondary hover:bg-subtle hover:text-fg md:inline-block" -}}
+
+        <a href="/_build{{ $langpfx }}/{{ $section }}/{{ $section }}.pdf" class="{{ $linkClass }}" title="Download PDF">PDF</a>
+        <a href="/_build{{ $langpfx }}/{{ $section }}/{{ $section }}.epub" class="{{ $linkClass }}" title="Download EPUB">EPUB</a>
+
+        {{- if $singlepage -}}
+          <a href="{{ (printf "/%s/" $section) | relLangURL }}" class="{{ $linkClass }}" title="Multi-page view">MULTI-PAGE</a>
+        {{- else -}}
+          <a href="{{ (printf "/%s/singlepage.html" $section) | relLangURL }}" class="{{ $linkClass }}" title="Single-page view">SINGLE-PAGE</a>
+        {{- end -}}
+      {{- end -}}
+      {{- end -}}
+
+      {{- /* Language selector — only when the site defines more than one language.
+             Builds the equivalent URL in each language by swapping the /<lang>/
+             prefix (default language has no prefix). */ -}}
+      {{- if gt (len site.Languages) 1 -}}
+        {{- $curLang := $page.Language.Lang -}}
+        {{- $barePath := $page.RelPermalink -}}
+        {{- if ne $curLang "en" -}}
+          {{- $barePath = replaceRE (printf "^/%s/" $curLang) "/" $page.RelPermalink -}}
+        {{- end -}}
+        <div class="lang-selector relative ml-1">
+          <button type="button" aria-haspopup="true" aria-label="Select language"
+            class="rounded-md px-3 py-1.5 font-medium text-fg-secondary hover:bg-subtle hover:text-fg">{{ $page.Language.LanguageName }} &#9662;</button>
+          <div class="lang-selector-dropdown">
+            {{- range site.Languages -}}
+              {{- $targetURL := $barePath -}}
+              {{- if ne .Lang "en" -}}{{- $targetURL = printf "/%s%s" .Lang $barePath -}}{{- end -}}
+              {{- if eq .Lang $curLang -}}
+                <span class="lang-selector-item lang-selector-current">{{ .LanguageName }}</span>
+              {{- else -}}
+                <a href="{{ $targetURL }}" class="lang-selector-item">{{ .LanguageName }}</a>
+              {{- end -}}
+            {{- end -}}
+          </div>
+        </div>
+      {{- end -}}
+
+      <button id="theme-toggle" type="button" aria-label="Toggle color theme"
+        class="ml-1 rounded-md border border-line p-2 text-fg-secondary hover:bg-subtle hover:text-fg">
+        <svg class="hidden h-4 w-4 dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1.5m0 15V21m9-9h-1.5m-15 0H3m15.4-6.4-1 1m-11.8 11.8-1 1m13.8 0-1-1M5.6 5.6l-1-1M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+        <svg class="block h-4 w-4 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+    </nav>
+  </div>
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      var root = document.documentElement;
+      var dark = root.getAttribute('data-mode') === 'dark';
+      if (dark) { root.removeAttribute('data-mode'); localStorage.setItem('theme', 'light'); }
+      else { root.setAttribute('data-mode', 'dark'); localStorage.setItem('theme', 'dark'); }
+    });
+  </script>
+</header>

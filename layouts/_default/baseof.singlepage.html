@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="{{ or site.Language.LanguageCode "en" }}" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ .Title }} · {{ site.Title }}</title>
+  {{- /* Set theme before paint to avoid a flash of the wrong mode. */ -}}
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+  {{ partial "head-css.html" . }}
+</head>
+<body class="min-h-full bg-app text-fg-body antialiased">
+  {{- /* Single-page view is full-bleed: it brings its own sticky contents pane,
+         so this shell omits the section sidebar and the centered max-width wrapper. */ -}}
+  <div class="flex min-h-screen flex-col">
+    {{ partial "header.html" (dict "ctx" . "singlepage" true) }}
+    <main class="min-w-0 flex-1">
+      {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "footer.html" . }}
+  </div>
+</body>
+</html>

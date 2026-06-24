@@ -1,0 +1,11 @@
+{{- /* Recursively mark the active page and every ancestor as "open" so the tree
+       renders with the active branch expanded.
+       ctx: { stem, parentOf (scratch), openSet (scratch) } */ -}}
+{{- $stem := .stem -}}
+{{- if ne $stem "" -}}
+  {{- .openSet.Set (printf "o_%s" $stem) true -}}
+  {{- $par := .parentOf.Get (printf "p_%s" $stem) -}}
+  {{- if and $par (ne $par "") -}}
+    {{- partial "sidebar-mark-open.html" (dict "stem" $par "parentOf" .parentOf "openSet" .openSet) -}}
+  {{- end -}}
+{{- end -}}

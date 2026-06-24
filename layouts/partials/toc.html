@@ -1,0 +1,11 @@
+{{- /* Right-hand, sticky in-page table of contents for chapter pages. Shown on
+       xl+ screens; below that, single.html renders a collapsible inline version
+       instead (xl:hidden), so the ToC is never lost on smaller viewports. */ -}}
+{{- if and (eq .Kind "page") (gt (len .Fragments.Identifiers) 1) -}}
+<aside class="hidden w-56 shrink-0 py-10 xl:block">
+  <nav class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
+    <p class="mb-3 font-heading text-xs font-semibold uppercase tracking-wide text-fg-muted">On this page</p>
+    <div class="linbit-toc text-sm">{{ .TableOfContents }}</div>
+  </nav>
+</aside>
+{{- end -}}

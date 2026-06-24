@@ -1,0 +1,11 @@
+name = "linbit"
+license = "MIT"
+description = "LINBIT's Hugo starter theme — brand foundation on Tailwind v4, styled from the LINBIT design system (@linbit/tokens + @linbit/core-css). Documentation is its flagship capability: nested sidebar, single-page view, native i18n, PDF/EPUB downloads, and built-in search. Docs chrome is content-conditional, so plain pages render as a clean branded shell."
+
+tags = ["company", "documentation", "tailwind", "design-tokens", "multilingual"]
+features = ["dark mode", "design tokens", "tailwind v4", "search", "i18n", "documentation"]
+
+min_version = "0.128.0"
+
+[author]
+  name = "LINBIT"

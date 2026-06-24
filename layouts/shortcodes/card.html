@@ -1,0 +1,4 @@
+<a href="{{ .Get "link" | relURL }}" class="group flex h-full flex-col rounded-xl border border-line bg-surface p-6 transition-colors hover:border-action">
+  <span class="font-heading text-lg font-semibold text-fg group-hover:text-action">{{ .Get "title" }}</span>
+  {{ with .Get "subtitle" }}<span class="mt-2 text-sm text-fg-secondary">{{ . }}</span>{{ end }}
+</a>
