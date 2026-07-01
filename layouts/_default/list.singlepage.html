@@ -2,14 +2,7 @@
   Single-page ("flat") view for a guide: every chapter on one scrolling page
   with a sticky contents pane and scroll-spy. Rendered for the `singlepage`
   output format (see hugo.linbit.toml) inside baseof.singlepage.html.
-
-  NOTE ON COEXISTENCE: an identical, theme-agnostic copy lives at the project
-  level (hugo/layouts/_default/list.singlepage.html), which the Hextra build also
-  uses. While both themes share one repo, Hugo's project-layouts-win precedence
-  means the project copy is what actually renders — this theme copy is dormant.
-  It exists so the theme is self-contained when extracted to its own module/repo
-  (at which point the project copy is gone and this one activates). Keep the two
-  in sync until extraction. Styling: `.linbit-singlepage-*` in assets/css/main.css.
+  Styling: `.linbit-singlepage-*` in assets/css/main.css.
 */ -}}
 {{ define "main" }}
 <div class="linbit-singlepage-outer">
@@ -26,10 +19,30 @@
   <div class="linbit-singlepage-content">
     <h1>{{ .Title }}</h1>
 
+    {{- $slugs := slice }}
+    {{- range .Pages }}{{ $slugs = $slugs | append .File.ContentBaseName }}{{ end }}
+    {{- $sibling := delimit $slugs "|" }}
+
     {{- range .Pages.ByWeight }}
-    <section id="{{ .File.ContentBaseName }}" class="linbit-singlepage-chapter">
+    {{- $slug := .File.ContentBaseName }}
+    {{- $c := string .Content }}
+    {{- /* Chapters are rendered for the multi-page layout, so intra-guide
+           cross-references arrive as ../chapter/#anchor. On this concatenated
+           page the target is in-page: rewrite to #anchor (or #chapter for
+           fragment-less links), restricted to sibling-chapter slugs so other
+           relative links pass through. Assumes anchors are unique across the
+           whole page — true for converter-emitted s-* anchors, not guaranteed
+           for Goldmark auto heading ids that repeat across chapters. */}}
+    {{- $c = replaceRE (printf `href="(?:\.\./)+(?:%s)/#([^"]+)"` $sibling) `href="#$1"` $c }}
+    {{- $c = replaceRE (printf `href="(?:\.\./)+(%s)/"` $sibling) `href="#$1"` $c }}
+    {{- /* Each chapter is a separate Goldmark render, so footnote ids restart
+           at fn:1 and collide once concatenated. Namespace ids and their in-page
+           hrefs with the chapter slug; ref\d* also covers the fnrefN:M ids
+           Goldmark emits for repeated references to one footnote. */}}
+    {{- $c = replaceRE `(id|href)="(#?)fn(ref\d*)?:` (printf `${1}="${2}fn${3}:%s-` $slug) $c }}
+    <section id="{{ $slug }}" class="linbit-singlepage-chapter">
       <h1>{{ .Title }}</h1>
-      <div class="content">{{ .Content }}</div>
+      <div class="prose">{{ $c | safeHTML }}</div>
     </section>
     {{- end }}
   </div>
