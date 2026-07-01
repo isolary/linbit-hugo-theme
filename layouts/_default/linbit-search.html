@@ -62,7 +62,7 @@
     const seen = new Set(), docs = [];
     for (const f of fields) for (const r of f.result) {
       if (seen.has(r.id)) continue;
-      seen.add(r.id); docs.push(r.doc);
+      seen.add(r.id); docs.push(Object.assign({ url: r.id }, r.doc));
     }
 
     countEl.textContent = docs.length + ' result' + (docs.length === 1 ? '' : 's');

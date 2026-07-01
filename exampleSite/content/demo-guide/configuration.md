@@ -21,3 +21,7 @@ demo-client status
 ```
 
 For the knobs that rarely need touching, see [Advanced tuning](../advanced-tuning/).
+This chapter also carries a footnote[^demo] so that, in the single-page view,
+its ids would collide with Introduction's footnote without per-chapter namespacing.
+
+[^demo]: A second chapter's footnote — Goldmark numbers it `fn:1` again.

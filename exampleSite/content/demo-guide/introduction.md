@@ -36,4 +36,17 @@ linstor node create alpha 10.0.0.1
 linstor resource-definition create demo --port 7000
 ```
 
+## Cross-references and footnotes
+
+Cross-references can target a chapter top ([Installation](../installation/)) or
+a specific heading in another chapter ([Verifying](../configuration/#verifying)
+targets a heading in Configuration). In the multi-page view these resolve as
+sibling pages; in the single-page view the theme rewrites them to in-page
+fragments. Footnotes[^demo] restart at 1 in every chapter render, so the
+single-page view namespaces their ids per chapter — including when the same
+footnote is referenced twice[^demo].
+
+[^demo]: A demo footnote, referenced twice above to exercise Goldmark's
+    `fnrefN:` duplicate-reference ids.
+
 Continue to [Installation](../installation/).
